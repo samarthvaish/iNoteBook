@@ -51,22 +51,19 @@ router.post(
     // console.log(req.body);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ success: false, errors: errors.array() });
     }
     let user = await findUser(req); //await User.findOne({ email: req.body.email });
     if (user) {
-      return res.status(400).json({ error: "This email is already used" });
+      return res
+        .status(400)
+        .json({ success: false, error: "This email is already used" });
     }
     let secPass = await hash(req);
     user = createUser(req, secPass);
     let data = await createData(user);
-    // let data = {
-    //   user: {
-    //     id: user.id,
-    //   },
-    // };
-    let jwtToken = await createJWTToken(data); //jwt.sign(data, jwt_secret);
-    res.json({ user: "Successfully Created", jwt: jwtToken });
+    let jwtToken = await createJWTToken(data);
+    res.json({ success: true, jwt: jwtToken });
   }
 );
 
@@ -97,7 +94,7 @@ router.post(
         }
         let data = await createData(user);
         let jwtToken = await createJWTToken(data); //jwt.sign(data, jwt_secret);
-        res.json({ user: "Logged in Successfully", jwt: jwtToken });
+        res.json({ success: true, jwt: jwtToken });
       }
     } catch (error) {
       res.status(500).send("Internal Server Error");
